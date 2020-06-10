@@ -43,6 +43,8 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 	level := strings.ToUpper(entry.Level.String())
 	output = strings.Replace(output, "%lvl%", level, 1)
+    output = strings.Replace(output, "%caller%", entry.Caller.Function, 1)
+	output = strings.Replace(output, "%line%", strconv.Itoa(entry.Caller.Line), 1)
 
 	for k, val := range entry.Data {
 		switch v := val.(type) {
