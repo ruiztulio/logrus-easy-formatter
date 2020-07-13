@@ -2,6 +2,8 @@
 package easy
 
 import (
+	"fmt"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -11,8 +13,9 @@ import (
 
 const (
 	// Default log format will output [INFO]: 2006-01-02T15:04:05Z07:00 - Log message
-	defaultLogFormat       = "[%lvl%]: %time% - %msg%"
-	defaultTimestampFormat = time.RFC3339
+	defaultLogFormat           = "[%lvl%]: %time% - %msg%"
+	defaultTimestampFormat     = time.RFC3339
+	knownGocoreVFrames     int = 8
 )
 
 // Formatter implements logrus.Formatter interface.
@@ -23,6 +26,17 @@ type Formatter struct {
 	// Also can include custom fields but limited to strings.
 	// All of fields need to be wrapped inside %% i.e %time% %msg%
 	LogFormat string
+}
+
+func getCaller() (string, string, int) {
+	pc, file, line, ok := runtime.Caller(knownGocoreVFrames)
+	if !ok {
+		panic("Could not get context info for logger!")
+	}
+	filename := file[strings.LastIndex(file, "/")+1:]
+	funcname := runtime.FuncForPC(pc).Name()
+	fn := funcname[strings.LastIndex(funcname, ".")+1:]
+	return filename, fn, line
 }
 
 // Format building log message.
@@ -42,9 +56,12 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 	output = strings.Replace(output, "%msg%", entry.Message, 1)
 
 	level := strings.ToUpper(entry.Level.String())
+	level = fmt.Sprintf("%-7s", level)
 	output = strings.Replace(output, "%lvl%", level, 1)
-	output = strings.Replace(output, "%caller%", entry.Caller.Function, 1)
-	output = strings.Replace(output, "%line%", strconv.Itoa(entry.Caller.Line), 1)
+	fname, fn, ln := getCaller()
+	output = strings.Replace(output, "%caller%", fname, 1)
+	output = strings.Replace(output, "%line%", strconv.Itoa(ln), 1)
+	output = strings.Replace(output, "%func%", fn, 1)
 
 	for k, val := range entry.Data {
 		switch v := val.(type) {
