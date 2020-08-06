@@ -33,8 +33,14 @@ func getCaller() (string, string, int) {
 	if !ok {
 		panic("Could not get context info for logger!")
 	}
-	filename := file[strings.LastIndex(file, "/")+1:]
 	funcname := runtime.FuncForPC(pc).Name()
+	// if the func name container the package name, lets get the next frame
+	if strings.Contains(funcname, "gocorev/logger") {
+		pc, file, line, ok = runtime.Caller(knownGocoreVFrames+1)
+		funcname = runtime.FuncForPC(pc).Name()
+	}
+
+	filename := file[strings.LastIndex(file, "/")+1:]
 	fn := funcname[strings.LastIndex(funcname, ".")+1:]
 	return filename, fn, line
 }
