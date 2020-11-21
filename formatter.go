@@ -2,7 +2,6 @@
 package easy
 
 import (
-	"fmt"
 	"runtime"
 	"strconv"
 	"strings"
@@ -62,7 +61,6 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 	output = strings.Replace(output, "%msg%", entry.Message, 1)
 
 	level := strings.ToUpper(entry.Level.String())
-	level = fmt.Sprintf("%-7s", level)
 	output = strings.Replace(output, "%lvl%", level, 1)
 	fname, fn, ln := getCaller()
 	output = strings.Replace(output, "%caller%", fname, 1)
