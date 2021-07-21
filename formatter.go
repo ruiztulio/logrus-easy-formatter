@@ -14,7 +14,7 @@ const (
 	// Default log format will output [INFO]: 2006-01-02T15:04:05Z07:00 - Log message
 	defaultLogFormat           = "[%lvl%]: %time% - %msg%"
 	defaultTimestampFormat     = time.RFC3339
-	knownGocoreVFrames     int = 8
+	knownGocoreVFrames     int = 9
 )
 
 // Formatter implements logrus.Formatter interface.
